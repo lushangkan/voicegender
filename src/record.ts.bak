@@ -1,0 +1,101 @@
+export class Record {
+
+    mediaStream: MediaStream | null;
+    mediaRecorder: MediaRecorder | null;
+    timer: Function | null;
+    timerDelay: number;
+    timerID: number | null;
+    chunks: Array<Blob>;
+
+    constructor(fun: Function) {
+        //Init
+        this.mediaStream = null;
+        this.mediaRecorder = null;
+        this.timer = null;
+        this.timerDelay = 0;
+        this.timerID = null;
+        this.chunks = [];
+
+        const isPermission = this.requestPermission();
+        navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(
+            (m) => {
+                console.log(m)
+                this.mediaStream = m;
+                if (this.mediaStream == null) return;
+                this.mediaRecorder = new MediaRecorder(this.mediaStream);
+            },
+            () => {
+                console.error("授权失败!");
+            }
+        ).catch((e) => {
+            console.log("获取mediaStream异常，错误:" + e)
+        })
+    }
+
+    clean(){
+        this.mediaStream = null;
+        this.mediaRecorder = null;
+        this.timer = null;
+        this.timerDelay = 0;
+        this.timerID = null;
+        this.chunks = [];
+    }
+
+    setTimer(fun:Function ,time: number):void {
+        this.timer = fun;
+        this.timerDelay = time;
+    }
+
+    requestPermission():boolean {
+        navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(r => {
+            this.mediaStream = r;
+            return true;
+        }).catch(e => {
+            console.log("不支持录音，或者没有权限, Error: " + e);
+            return false;
+        })
+        return false;
+    }
+
+    getStatus():string {
+        if (this.mediaRecorder == null) return "";
+        return this.mediaRecorder.state;
+    }
+
+    start():void {
+        if (this.mediaRecorder == null) return;
+        this.mediaRecorder.ondataavailable = (e) => {
+            this.chunks.push(e.data)
+        };
+        this.mediaRecorder.start();
+        if (this.timer != null) {
+            this.timerID = setInterval(this.timer, this.timerDelay);
+        }
+    }
+
+    pause():void {
+        if (this.mediaRecorder == null) return;
+        this.mediaRecorder.pause();
+        if (this.timer != null && this.timerID != null) {
+            clearInterval(this.timerID);
+        }
+    }
+
+    resume():void {
+        if (this.mediaRecorder == null) return;
+        this.mediaRecorder.resume();
+        if (this.timer != null && this.timerID != null) {
+            clearInterval(this.timerID);
+        }
+    }
+
+    stop():void {
+        if (this.mediaRecorder == null) return;
+        this.mediaRecorder.stop();
+        if (this.timer != null && this.timerID != null) {
+            clearInterval(this.timerID);
+        }
+    }
+
+}
+
