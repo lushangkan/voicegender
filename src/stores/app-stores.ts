@@ -10,3 +10,11 @@ export const panelStore = reactive({
     ]),
     refMap: <null | Map<string, Ref<null | HTMLInputElement>>>null,
 })
+
+export const audioStore = reactive({
+    audioBlob: <string | null>null,
+})
+
+export const config = reactive({
+    serverUrl: 'https://vgs.cutemc.cn',
+})

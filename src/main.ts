@@ -6,8 +6,6 @@ import Framework7Vue, { registerComponents } from 'framework7-vue/bundle';
 import App from './App.vue'
 import { MotionPlugin } from '@vueuse/motion'
 
-
-
 import router from "@/routes/router";
 
 import "framework7/css/bundle";

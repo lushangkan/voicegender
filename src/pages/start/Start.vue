@@ -27,6 +27,7 @@
 <script setup>
 import {ref, onMounted} from 'vue'
 import { useRouter, useRoute } from "vue-router";
+import * as fun from '../../fun'
 
 const route = useRoute();
 const router = useRouter();
@@ -44,6 +45,9 @@ function clickFileButton() {
 
   input.onchange = e => {
     file.value = e.target.files[0];
+    fun.readFile(file.value, (data) => {
+      //TODO
+    })
   }
 
   input.click();

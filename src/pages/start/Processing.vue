@@ -9,10 +9,18 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import {onMounted, ref} from 'vue'
 import Loader from "@/components/loader.vue";
+import * as fun from '../../fun'
+import {audioStore} from "@/stores/app-stores";
 
-const processStatus = ref("Analyzing voice 4/4 ..")
+const processStatus = ref("")
+
+onMounted(() => {
+
+})
+
+
 
 </script>
 

@@ -12,16 +12,18 @@ export class Record {
     private timerDelay: number;
     private timerID: number;
     private waveform: any;
+    private audioBlob: string;
 
     constructor(success: Function) {
         this.success = success;
         this.timer = null;
         this.timerDelay = 1;
         this.timerID = -1;
+        this.audioBlob = "";
 
         this.rec = Recorder({
             type:"wav",
-            sampleRate:32000,
+            sampleRate:16000,
             bitRate:16,
             onProcess: (buffers,powerLevel,bufferDuration,bufferSampleRate,newBufferIdx,asyncEnd) => {
                 this.waveform.input(buffers[buffers.length-1],powerLevel,bufferSampleRate);
@@ -90,10 +92,20 @@ export class Record {
     }
 
     stop():void {
-        this.rec.stop();
+        this.rec.stop((blob, duration) => {
+            this.audioBlob = blob;
+        });
         if (this.timer != null && this.timerID != null) {
             clearInterval(this.timerID);
         }
+    }
+
+    getBlob():string {
+        return this.audioBlob;
+    }
+
+    close():void {
+        this.rec.close();
     }
 
     isOpen():boolean {
