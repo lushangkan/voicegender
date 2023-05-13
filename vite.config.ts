@@ -15,6 +15,15 @@ export default defineConfig({
   },
   server: {
     host: "localhost",
-    port: 80
+    port: 80,
+    proxy: {
+      "/api": {
+        target: "https://vgs.cutemc.cn",
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
+    cors: false,
   }
 })

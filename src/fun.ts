@@ -1,12 +1,9 @@
 import {f7} from "framework7-vue";
-import type {Router} from "vue-router";
-import type {Ref} from "vue";
-import {toRaw} from "vue";
 import router from "@/routes/router";
 import {routerMap} from "@/routes/router";
-import {animate} from "dom7";
 import * as stores from '@/stores/app-stores';
-import {audioStore} from "@/stores/app-stores";
+import type {AnalyzeStatus, RequestStatus} from "@/interface/status";
+import type {ModelResults} from "@/interface/results";
 
 
 export function switchPage(switchTo: string) {
@@ -51,28 +48,63 @@ export function switchPage(switchTo: string) {
     router.push(path);
 }
 
-export function readFile(file) {
+export function getAnalyzeStatus(uuid: string) {
     return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
+       get(`${stores.config.serverUrl}/analyze/${uuid}/status`).then((res) => {
+           // @ts-ignore
+           const json = JSON.parse(res);
+           if (json.status.code != 200) {
+               reject(<RequestStatus>{
+                   status: json.status,
+               });
+           } else {
+               resolve(<AnalyzeStatus>{
+                   status: json.analyzeStatus,
+               })
+           }
+       }).catch((err) => {
+           reject(err);
+       });
     });
 }
 
-export function uploadFile() {
+export function getAnalyzeResult(uuid: string) {
     return new Promise((resolve, reject) => {
-        if (audioStore.audioBlob === null) reject('No audio file selected')
+        get(`${stores.config.serverUrl}/analyze/${uuid}/result`).then((res) => {
+            // @ts-ignore
+            const json = JSON.parse(res);
+            if (json.status.code != 200) {
+                reject(<RequestStatus>{
+                    status: json.status,
+                });
+            }
+            resolve(<ModelResults>json.modelResult);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+}
+
+export function uploadFile(audioBlob: string) {
+    return new Promise((resolve, reject) => {
+        if (audioBlob === null) reject('No audio file selected')
 
         const formData = new FormData();
         // @ts-ignore
-        formData.append('file', audioStore.audioBlob);
+        formData.append('file', audioBlob);
 
         post(formData, `${stores.config.serverUrl}/analyze`).then((res) => {
             // @ts-ignore
-            const map: Map<string, string> = new Map(Object.entries(JSON.parse(res)));
-
-
+            const json = JSON.parse(res);
+            // @ts-ignore
+            const regex = new RegExp('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$');
+            if (regex.test(<string>json.analyzeUUID)) {
+                resolve(json.analyzeUUID);
+            } else {
+                reject(<RequestStatus>{
+                    status: json.status,
+                });
+            }
         }).catch((err) => {
             console.error('Failed to upload file', err);
         })
@@ -82,15 +114,14 @@ export function uploadFile() {
 export function checkStatus() {
     return new Promise((resolve, reject) => {
         get(`${stores.config.serverUrl}/status`).then((res) => {
-            if (res === null || !(res instanceof String)) {
+            if (res === null || res === undefined) {
                 reject('Failed to check status');
             }
             // @ts-ignore
-            const map: Map<string, string> = new Map(Object.entries(JSON.parse(res)));
-            // @ts-ignore
-            const statusMap: Map<string, string> | undefined = new Map(Object.entries(map.get('status')));
-
-            if (statusMap.get('code') === '200') resolve(true);
+            const json = JSON.parse(res);
+            resolve(<RequestStatus>{
+                status: json.status,
+            });
         }).catch((err) => {
             console.error('Failed to check status', err);
             reject(err)
@@ -100,32 +131,63 @@ export function checkStatus() {
 
 export function post(formData: FormData, url: string){
     return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', url, true);
-        xhr.onload = () => {
-            if (xhr.status === 200) {
-                resolve(xhr.responseText);
+        for (let i = 1; i < stores.config.retryTimes; i++) {
+            let error: any = null;
+            let result: string | null = null;
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', url, false);
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                    result = xhr.responseText;
+                } else {
+                    error = xhr.statusText;
+                }
+            };
+            xhr.onerror = () => {
+                error = xhr.statusText;
+            };
+            xhr.send(formData);
+            if (error != null && i < stores.config.retryTimes) {
+                reject(error);
+            } else if (error != null) {
+                console.warn(`Failed to post ${i} time(s)`, error);
             } else {
-                reject(xhr.statusText);
+                resolve(result);
+                break;
             }
-        };
-        xhr.onerror = () => reject(xhr.statusText);
-        xhr.send(formData);
+        }
     });
 }
 
 export function get(url: string) {
     return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open('GET', url, true);
-        xhr.onload = () => {
-            if (xhr.status === 200) {
-                resolve(xhr.responseText);
-            } else {
-                reject(xhr.statusText);
+        for (let i = 1; i < stores.config.retryTimes; i++) {
+            let error: string | null = null;
+            let result: string | null = null;
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', url, false);
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                    result = xhr.responseText;
+                } else {
+                    error = xhr.statusText;
+                }
+            };
+            xhr.onerror = () => {
+                error = xhr.statusText;
+            };
+            xhr.ontimeout = () => {
+                error = 'Timeout';
             }
-        };
-        xhr.onerror = () => reject(xhr.statusText);
-        xhr.send();
+            xhr.send();
+            if (result != null){
+                resolve(result);
+                break;
+            } else if (error != null && i > stores.config.retryTimes) {
+                reject(error);
+            } else if (error != null) {
+                console.warn(`Failed to post ${i} time(s)`, error);
+            }
+        }
     });
 }

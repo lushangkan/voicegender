@@ -16,5 +16,6 @@ export const audioStore = reactive({
 })
 
 export const config = reactive({
-    serverUrl: 'https://vgs.cutemc.cn',
+    serverUrl: <string>'http://localhost/api',
+    retryTimes: <number>10,
 })

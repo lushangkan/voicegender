@@ -27,6 +27,7 @@
 <script setup>
 import {ref, onMounted} from 'vue'
 import { useRouter, useRoute } from "vue-router";
+import * as store from '../../stores/app-stores'
 import * as fun from '../../fun'
 
 const route = useRoute();
@@ -39,15 +40,10 @@ function clickRecordButton() {
 function clickFileButton() {
   const input = document.createElement('input');
   input.type = 'file';
-  input.accept = 'audio/*'
-
-  const file = ref()
+  input.accept = 'audio/*';
 
   input.onchange = e => {
-    file.value = e.target.files[0];
-    fun.readFile(file.value, (data) => {
-      //TODO
-    })
+    store.audioStore.audioBlob = e.target.files[0];
   }
 
   input.click();

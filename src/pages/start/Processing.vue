@@ -14,13 +14,8 @@ import Loader from "@/components/loader.vue";
 import * as fun from '../../fun'
 import {audioStore} from "@/stores/app-stores";
 
-const processStatus = ref("")
-
 onMounted(() => {
-
 })
-
-
 
 </script>
 
