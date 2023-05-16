@@ -29,7 +29,6 @@
     "dom7": "^4.0.4",
     "framework7": "^7.0.7",
     "framework7-vue": "^7.0.7",
-    "pinia": "^2.0.16",
     "vue": "^3.2.37",
     "vue-i18n": "^9.2.2"
   },
@@ -48,6 +47,7 @@
     "less-loader": "^11.1.0",
     "moment": "^2.29.4",
     "npm-run-all": "^4.1.5",
+    "pinia": "^2.0.36",
     "recorder-core": "^1.2.23020100",
     "sass": "^1.59.3",
     "typescript": "^4.9.5",

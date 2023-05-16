@@ -24,10 +24,8 @@
 
 <script setup>
 import {ref, onMounted} from 'vue'
-import * as main from '../main.ts';
 import {useRouter} from "vue-router";
-import * as store from '../stores/app-stores';
-import * as fun from '../fun'
+import * as fun from '../script/fun'
 
 const router = useRouter();
 

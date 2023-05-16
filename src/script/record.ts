@@ -2,9 +2,8 @@ import Recorder from 'recorder-core'
 import 'recorder-core/src/extensions/waveview'
 import 'recorder-core/src/engine/wav'
 import 'recorder-core/src/extensions/waveview'
-import type {Ref} from "vue";
 
-export class Record {
+export default class Record {
 
     private rec: typeof Recorder;
     private success: Function;
@@ -12,14 +11,12 @@ export class Record {
     private timerDelay: number;
     private timerID: number;
     private waveform: any;
-    private audioBlob: string;
 
     constructor(success: Function) {
         this.success = success;
         this.timer = null;
         this.timerDelay = 1;
         this.timerID = -1;
-        this.audioBlob = "";
 
         this.rec = Recorder({
             type:"wav",
@@ -91,17 +88,15 @@ export class Record {
         }
     }
 
-    stop():void {
-        this.rec.stop((blob, duration) => {
-            this.audioBlob = blob;
+    stop(): Promise<string> {
+        return new Promise((resolve, reject) => {
+            if (this.timer != null && this.timerID != null) {
+                clearInterval(this.timerID);
+            }
+            this.rec.stop((blob, duration) => {
+                resolve(blob);
+            });
         });
-        if (this.timer != null && this.timerID != null) {
-            clearInterval(this.timerID);
-        }
-    }
-
-    getBlob():string {
-        return this.audioBlob;
     }
 
     close():void {

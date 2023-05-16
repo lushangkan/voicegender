@@ -1,4 +1,4 @@
-import type {ModelDetails} from "@/interface/model-details";
+import type {ModelDetails} from "@/script/interface/model-details";
 
 export const modelTypes: Record<string, ModelDetails> = {
     XGBOOST: {

@@ -1,11 +1,8 @@
 import HomePage from '../pages/Home.vue';
 import StartPage from '../pages/start/Start.vue';
 import RecordPage from '../pages/start/Record.vue';
-import ProcessingPage from "@/pages/start/Processing.vue";
-import NotFoundPage from '../pages/404.vue';
-
-
 import { createRouter, createWebHistory } from 'vue-router';
+import Uploading from "@/pages/start/Uploading.vue";
 
 const routes = [
     {
@@ -22,13 +19,14 @@ const routes = [
     },
     {
         path: '/start/record',
+        name: 'record',
         component: () => RecordPage,
     },
     {
-        path: '/start/processing',
-        component: () => ProcessingPage,
+        path: '/start/uploading',
+        name: 'uploading',
+        component: () => Uploading,
     },
-
 ]
 
 export const routerMap = new Map<string, string>()

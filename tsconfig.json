@@ -1,9 +1,9 @@
 {
   "extends": "@vue/tsconfig/tsconfig.web.json",
-  "lib": ["es2017"],
   "include": [
     "index.d.ts", "src/**/*", "src/**/*.vue"],
   "compilerOptions": {
+    "lib": ["es2017", "dom", "webworker"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]

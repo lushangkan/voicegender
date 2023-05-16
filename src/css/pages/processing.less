@@ -1,3 +1,5 @@
+@import "../fonts.less";
+
 .context {
   position: absolute;
 
@@ -19,12 +21,51 @@
     transform: translateX(-50%);
   }
 
+  .error-title {
+    position: absolute;
+    font-family: "MiSans Light", serif;
+    font-size: 3vh;
+    text-align: center;
+    color: #FB220F;
+    left: 50%;
+    top: 10.6vh;
+    transform: translateX(-50%);
+  }
+
+  .error-message {
+    position: absolute;
+    font-family: "MiSans Thin", serif;
+
+    font-size: 2vh;
+    white-space: nowrap;
+    left: 50%;
+    transform: translate(-50%);
+
+    color: #000000;
+
+    bottom: 0;
+  }
+
   .loader {
     position: absolute;
 
     width: 13vw;
 
     top: 0;
+
+    left: 0;
+    right: 0;
+    margin: auto;
+  }
+
+  .error-icon {
+    position: absolute;
+
+    width: 16.5vw;
+
+    top: 0;
+
+    color: #fc675b;
 
     left: 0;
     right: 0;

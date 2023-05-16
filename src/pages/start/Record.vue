@@ -51,8 +51,11 @@ import {onMounted, ref, computed, reactive, inject} from 'vue'
 import {useRoute, useRouter} from "vue-router";
 import {f7} from 'framework7-vue';
 import moment from "moment";
-import {Record} from "@/record";
-import {audioStore} from "../../stores/app-stores";
+import Record from "../../script/record";
+import {useAudioStore} from "../../stores/app-stores";
+import * as fun from '../../script/fun'
+
+const audioStore = useAudioStore();
 
 const isPause = ref(false)
 
@@ -104,12 +107,15 @@ function onClickFinishButton() {
     if (time < 2) return;
     time = 0;
     recordingTime.value = "00:15"
-    record.stop()
     recording.value = false;
     finishButton.value = "finish-button";
     resumeButtonIcon.value = 'resume-button-icon'
-    audioStore.audioBlob = record.getBlob();
-    //TODO
+
+    record.stop().then((blob) => {
+        console.log(blob)
+        audioStore.audioUrl = blob;
+        fun.switchPage('uploading');
+    })
 }
 
 function onClickPauseButton() {

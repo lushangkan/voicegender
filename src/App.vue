@@ -53,20 +53,22 @@
   import {ref, onMounted, computed} from 'vue';
   import type {Ref} from 'vue'
   import { f7, f7ready, f7App, f7Page, f7View, f7Panel, f7Block, f7BlockFooter, f7List, f7LoginScreen, f7LoginScreenTitle, f7Link, f7Navbar, f7NavRight, f7Toolbar, f7Views, f7Popup, f7ListInput, f7ListButton  } from 'framework7-vue';
+  // @ts-ignore
   import { getDevice }  from 'framework7/lite-bundle';
   import capacitorApp from './capacitor-app';
   import {useCounterStore} from '@/stores/counter';
 
-  import { panelStore } from '@/stores/app-stores'
-  
-  import * as fun from '@/fun'
+  import * as fun from '@/script/fun'
 
   import {useRoute, useRouter} from "vue-router";
+  import {usePanelStore} from "@/stores/app-stores";
 
   const route = useRoute();
   const router = useRouter();
 
   const device = getDevice();
+
+  const panelStore = usePanelStore()
 
   const home: Ref<HTMLInputElement | null> = ref(null);
   const start: Ref<HTMLInputElement | null> = ref(null);
@@ -122,5 +124,7 @@
         ['link', link],
         ['about', about]
     ]);
+
+    fun.initPanel();
   });
 </script>
